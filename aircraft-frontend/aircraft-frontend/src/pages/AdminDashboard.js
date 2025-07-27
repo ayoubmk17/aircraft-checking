@@ -169,7 +169,7 @@ function AdminDashboard({ currentUser, onLogout }) {
             className="w-10 h-8 object-contain"
           />
           <h2 className="text-lg font-bold text-blue-400">
-            ACS Dashboard
+            Dashboard Admin
           </h2>
         </div>
         

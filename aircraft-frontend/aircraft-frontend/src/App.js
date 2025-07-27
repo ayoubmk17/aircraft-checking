@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
+import EngineerDashboard from './components/EngineerDashboard';
+import MechanicDashboard from './components/MechanicDashboard';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -34,11 +36,14 @@ function App() {
     <div className="App">
       {!isAuthenticated ? (
         <LoginPage onLoginSuccess={handleLoginSuccess} />
+      ) : currentUser?.role === "ADMIN" ? (
+        <AdminDashboard currentUser={currentUser} onLogout={handleLogout} />
+      ) : currentUser?.role === "INGENIEUR" ? (
+        <EngineerDashboard currentUser={currentUser} onLogout={handleLogout} />
+      ) : currentUser?.role === "MECANICIEN" ? (
+        <MechanicDashboard currentUser={currentUser} onLogout={handleLogout} />
       ) : (
-        <AdminDashboard
-          currentUser={currentUser}
-          onLogout={handleLogout}
-        />
+        <div>Rôle inconnu</div>
       )}
     </div>
   );

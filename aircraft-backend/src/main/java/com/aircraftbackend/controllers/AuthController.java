@@ -30,7 +30,7 @@ public class AuthController {
             // Rechercher l'utilisateur par email
             Utilisateur utilisateur = utilisateurService.findByEmail(email);
             
-            if (utilisateur != null && passwordEncoder.matches(password, utilisateur.getPassword())) {
+            if (utilisateur != null && utilisateur.getPassword().equals(password)) {
                 // Authentification réussie
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", true);

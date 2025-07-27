@@ -14,14 +14,15 @@ export default function AdminAvions() {
   });
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
 
   const fetchAvions = async () => {
     setLoading(true);
     try {
-      const data = await getAvions();
-      setAvions(data);
+    const data = await getAvions();
+    setAvions(data);
     } catch (e) {
-      setFeedback({ type: 'error', message: "Erreur lors du chargement des avions." });
+      setFeedback({ type: 'error', message: "Erreur lors du chargement des données" });
     }
     setLoading(false);
   };
@@ -65,99 +66,153 @@ export default function AdminAvions() {
         await updateAvion(form.id, form);
         setFeedback({ type: 'success', message: "Avion modifié avec succès." });
       } else {
-        await createAvion(form);
+    await createAvion(form);
         setFeedback({ type: 'success', message: "Avion ajouté avec succès." });
       }
-      fetchAvions();
+    fetchAvions();
       closeModal();
     } catch (e) {
       setFeedback({ type: 'error', message: `Erreur lors de l'enregistrement: ${e.message}` });
     }
   };
 
-  const handleDelete = async id => {
-    if (!window.confirm("Supprimer cet avion ?")) return;
+  const openConfirmDelete = (id) => {
+    setConfirmDelete({ open: true, id });
+  };
+
+  const closeConfirmDelete = () => {
+    setConfirmDelete({ open: false, id: null });
+  };
+
+  const handleDelete = async () => {
     try {
-      await deleteAvion(id);
+      await deleteAvion(confirmDelete.id);
       setFeedback({ type: 'success', message: "Avion supprimé." });
-      fetchAvions();
+    fetchAvions();
     } catch (e) {
       setFeedback({ type: 'error', message: "Erreur lors de la suppression." });
     }
+    closeConfirmDelete();
   };
 
   return (
-    <div>
-      <h2>Liste des Avions</h2>
-      {feedback && <div style={{color: feedback.type === 'error' ? 'red' : 'green'}}>{feedback.message}</div>}
-      <button onClick={() => openModal()}>Ajouter un Avion</button>
-      {loading ? <p>Chargement...</p> : (
-        <table border="1" cellPadding="8" style={{marginTop:16}}>
-          <thead>
-            <tr>
-              <th>Modèle</th>
-              <th>Immatriculation</th>
-              <th>Statut</th>
-              <th>Date dernière maintenance</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {avions.map(avion => (
-              <tr key={avion.id}>
-                <td>{avion.modele}</td>
-                <td>{avion.immatriculation}</td>
-                <td>{avion.statut}</td>
-                <td>{avion.dateDerniereMaintenance}</td>
-                <td>
-                  <button onClick={() => openModal(avion)}>Modifier</button>
-                  <button onClick={() => handleDelete(avion.id)} style={{marginLeft:8}}>Supprimer</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="p-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Gestion des Avions</h2>
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow flex items-center gap-2"
+          onClick={() => openModal()}
+        >
+          <span className="text-lg font-bold">+</span> Ajouter un Avion
+        </button>
+      </div>
+      {feedback && (
+        <div className={`mb-4 p-2 rounded ${feedback.type === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{feedback.message}</div>
       )}
+      {loading ? <p>Chargement...</p> : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border rounded shadow">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="py-2 px-4 border-b">AVION</th>
+                <th className="py-2 px-4 border-b">IMMATRICULATION</th>
+                <th className="py-2 px-4 border-b">STATUT</th>
+                <th className="py-2 px-4 border-b">DERNIÈRE MAINTENANCE</th>
+                <th className="py-2 px-4 border-b">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+          {avions.map(avion => (
+                <tr key={avion.id} className="hover:bg-gray-50">
+                  <td className="py-2 px-4 border-b">{avion.modele}</td>
+                  <td className="py-2 px-4 border-b">{avion.immatriculation}</td>
+                  <td className="py-2 px-4 border-b">{avion.statut}</td>
+                  <td className="py-2 px-4 border-b">{avion.dateDerniereMaintenance}</td>
+                  <td className="py-2 px-4 border-b">
+                    <button
+                      className="text-blue-600 hover:underline mr-2"
+                      onClick={() => openModal(avion)}
+                    >
+                      Modifier
+                    </button>
+                    <button
+                      className="text-red-600 hover:underline"
+                      onClick={() => openConfirmDelete(avion.id)}
+                    >
+                      Supprimer
+                    </button>
+                  </td>
+                </tr>
+          ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {/* Modal d'ajout/modification */}
       {modalOpen && (
-        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <form onSubmit={handleSubmit} style={{background:'#fff',padding:24,borderRadius:8,minWidth:300,display:'flex',flexDirection:'column',gap:12}}>
-            <h3>{editMode ? 'Modifier' : 'Ajouter'} un Avion</h3>
-            <input 
-              name="modele" 
-              placeholder="Modèle" 
-              value={form.modele} 
-              onChange={handleChange} 
-              required 
-            />
-            <input 
-              name="immatriculation" 
-              placeholder="Immatriculation" 
-              value={form.immatriculation} 
-              onChange={handleChange} 
-              required 
-            />
-            <select 
-              name="statut" 
-              value={form.statut} 
-              onChange={handleChange} 
-              required
-            >
-              <option value="ACTIF">Actif</option>
-              <option value="MAINTENANCE">Maintenance</option>
-              <option value="RETIRE">Retiré</option>
-            </select>
-            <input 
-              type="date" 
-              name="dateDerniereMaintenance" 
-              placeholder="Date dernière maintenance" 
-              value={form.dateDerniereMaintenance} 
-              onChange={handleChange} 
-            />
-            <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
-              <button type="button" onClick={closeModal}>Annuler</button>
-              <button type="submit">{editMode ? 'Modifier' : 'Ajouter'}</button>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <form className="bg-white p-6 rounded shadow w-full max-w-md" onSubmit={handleSubmit}>
+            <h3 className="text-xl font-bold mb-4">{editMode ? 'Modifier' : 'Ajouter'} un Avion</h3>
+            <div className="mb-2">
+              <input
+                name="modele"
+                placeholder="Modèle"
+                value={form.modele}
+                onChange={handleChange}
+                required
+                className="w-full border rounded px-3 py-2"
+              />
             </div>
-          </form>
+            <div className="mb-2">
+              <input
+                name="immatriculation"
+                placeholder="Immatriculation"
+                value={form.immatriculation}
+                onChange={handleChange}
+                required
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+            <div className="mb-2">
+              <select
+                name="statut"
+                value={form.statut}
+                onChange={handleChange}
+                required
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="ACTIF">Actif</option>
+                <option value="MAINTENANCE">Maintenance</option>
+                <option value="RETIRE">Retiré</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <input
+                type="date"
+                name="dateDerniereMaintenance"
+                placeholder="Date dernière maintenance"
+                value={form.dateDerniereMaintenance}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">{editMode ? 'Modifier' : 'Ajouter'}</button>
+            </div>
+      </form>
+        </div>
+      )}
+      {/* Modal de confirmation suppression */}
+      {confirmDelete.open && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white p-6 rounded shadow w-full max-w-sm">
+            <p className="mb-4">Voulez-vous vraiment supprimer cet avion ?</p>
+            <div className="flex justify-end gap-2 mt-4">
+              <button onClick={closeConfirmDelete} className="px-4 py-2 bg-gray-200 rounded">Annuler</button>
+              <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded">Supprimer</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

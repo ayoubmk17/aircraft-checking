@@ -38,11 +38,11 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
+  
 export async function getAvions() {
   const response = await api.get('/avions');
   return response.data;
-}
+  }
 
 export async function getAvionById(id) {
   const response = await api.get(`/avions/${id}`);
@@ -76,7 +76,7 @@ export async function getComposantById(id) {
 }
 
 export async function getComposantsByAvion(avionId) {
-  const response = await api.get(`/composants/${avionId}`);
+  const response = await api.get(`/composants/avion/${avionId}`);
   return response.data;
 }
 
@@ -88,6 +88,11 @@ export async function createComposant(data) {
 export async function deleteComposant(id) {
   const response = await api.delete(`/composants/${id}`);
   return response.status === 200;
+}
+
+export async function updateComposant(id, data) {
+  const response = await api.put(`/composants/${id}`, data);
+  return response.data;
 }
 
 // RAPPORTS

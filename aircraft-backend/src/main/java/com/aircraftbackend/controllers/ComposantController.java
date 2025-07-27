@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/composants")
+@CrossOrigin(origins = "*")
 public class ComposantController {
     private final ComposantService composantService;
 
@@ -26,7 +27,7 @@ public class ComposantController {
         return composantService.getById(id).orElse(null);
     }
 
-    @GetMapping("/{avionId}")
+    @GetMapping("/avion/{avionId}")
     public List<Composant> getByAvion(@PathVariable Long avionId) {
         return composantService.getByAvion(avionId);
     }
@@ -39,6 +40,11 @@ public class ComposantController {
     @PostMapping
     public Composant create(@RequestBody Composant composant) {
         return composantService.create(composant);
+    }
+
+    @PutMapping("/{id}")
+    public Composant update(@PathVariable Long id, @RequestBody Composant composant) {
+        return composantService.update(id, composant);
     }
 
     @DeleteMapping("/{id}")
