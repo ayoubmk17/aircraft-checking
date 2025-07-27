@@ -34,7 +34,7 @@ public class UtilisateurService {
     public Utilisateur update(Long id, Utilisateur utilisateur) {
         Optional<Utilisateur> optional = utilisateurRepository.findById(id);
         if (optional.isPresent()) {
-            Utilisateur updated=optional.get();
+            Utilisateur updated = optional.get();
             updated.setPrenom(utilisateur.getPrenom());
             updated.setNom(utilisateur.getNom());
             updated.setEmail(utilisateur.getEmail());

@@ -5,7 +5,13 @@ export default function AdminAvions() {
   const [avions, setAvions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [form, setForm] = useState({ modele: '', numeroSerie: '', id: null });
+  const [form, setForm] = useState({ 
+    modele: '', 
+    immatriculation: '', 
+    statut: 'ACTIF',
+    dateDerniereMaintenance: '',
+    id: null 
+  });
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
@@ -24,7 +30,13 @@ export default function AdminAvions() {
     fetchAvions();
   }, []);
 
-  const openModal = (avion = { modele: '', numeroSerie: '', id: null }) => {
+  const openModal = (avion = { 
+    modele: '', 
+    immatriculation: '', 
+    statut: 'ACTIF',
+    dateDerniereMaintenance: '',
+    id: null 
+  }) => {
     setForm(avion);
     setEditMode(!!avion.id);
     setModalOpen(true);
@@ -32,7 +44,13 @@ export default function AdminAvions() {
 
   const closeModal = () => {
     setModalOpen(false);
-    setForm({ modele: '', numeroSerie: '', id: null });
+    setForm({ 
+      modele: '', 
+      immatriculation: '', 
+      statut: 'ACTIF',
+      dateDerniereMaintenance: '',
+      id: null 
+    });
     setEditMode(false);
   };
 
@@ -53,7 +71,7 @@ export default function AdminAvions() {
       fetchAvions();
       closeModal();
     } catch (e) {
-      setFeedback({ type: 'error', message: "Erreur lors de l'enregistrement." });
+      setFeedback({ type: 'error', message: `Erreur lors de l'enregistrement: ${e.message}` });
     }
   };
 
@@ -78,7 +96,9 @@ export default function AdminAvions() {
           <thead>
             <tr>
               <th>Modèle</th>
-              <th>Numéro de série</th>
+              <th>Immatriculation</th>
+              <th>Statut</th>
+              <th>Date dernière maintenance</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -86,7 +106,9 @@ export default function AdminAvions() {
             {avions.map(avion => (
               <tr key={avion.id}>
                 <td>{avion.modele}</td>
-                <td>{avion.numeroSerie}</td>
+                <td>{avion.immatriculation}</td>
+                <td>{avion.statut}</td>
+                <td>{avion.dateDerniereMaintenance}</td>
                 <td>
                   <button onClick={() => openModal(avion)}>Modifier</button>
                   <button onClick={() => handleDelete(avion.id)} style={{marginLeft:8}}>Supprimer</button>
@@ -100,8 +122,37 @@ export default function AdminAvions() {
         <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>
           <form onSubmit={handleSubmit} style={{background:'#fff',padding:24,borderRadius:8,minWidth:300,display:'flex',flexDirection:'column',gap:12}}>
             <h3>{editMode ? 'Modifier' : 'Ajouter'} un Avion</h3>
-            <input name="modele" placeholder="Modèle" value={form.modele} onChange={handleChange} required />
-            <input name="numeroSerie" placeholder="Numéro de série" value={form.numeroSerie} onChange={handleChange} required />
+            <input 
+              name="modele" 
+              placeholder="Modèle" 
+              value={form.modele} 
+              onChange={handleChange} 
+              required 
+            />
+            <input 
+              name="immatriculation" 
+              placeholder="Immatriculation" 
+              value={form.immatriculation} 
+              onChange={handleChange} 
+              required 
+            />
+            <select 
+              name="statut" 
+              value={form.statut} 
+              onChange={handleChange} 
+              required
+            >
+              <option value="ACTIF">Actif</option>
+              <option value="MAINTENANCE">Maintenance</option>
+              <option value="RETIRE">Retiré</option>
+            </select>
+            <input 
+              type="date" 
+              name="dateDerniereMaintenance" 
+              placeholder="Date dernière maintenance" 
+              value={form.dateDerniereMaintenance} 
+              onChange={handleChange} 
+            />
             <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
               <button type="button" onClick={closeModal}>Annuler</button>
               <button type="submit">{editMode ? 'Modifier' : 'Ajouter'}</button>

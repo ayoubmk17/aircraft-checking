@@ -6,6 +6,7 @@ import {
   deleteAvion, 
   getRapports 
 } from '../services/api';
+import AdminUtilisateurs from '../components/AdminUtilisateurs';
 
 function AdminDashboard({ currentUser, onLogout }) {
   const [activeTab, setActiveTab] = useState("avions");
@@ -108,7 +109,7 @@ function AdminDashboard({ currentUser, onLogout }) {
               className="w-10 h-8 object-contain"
             />
             <h2 className="text-lg font-bold text-blue-400">
-              ACS Dashboard
+              Dashboard Admin
             </h2>
           </div>
           
@@ -122,6 +123,10 @@ function AdminDashboard({ currentUser, onLogout }) {
           
           <button className="p-3 text-left text-base transition-colors duration-200 rounded-lg bg-blue-600 text-white">
             ✈️ Gestion Avions
+          </button>
+          
+          <button className="p-3 text-left text-base transition-colors duration-200 rounded-lg text-gray-300 hover:bg-gray-700">
+            👥 Gestion Utilisateurs
           </button>
           
           <button className="p-3 text-left text-base transition-colors duration-200 rounded-lg text-gray-300 hover:bg-gray-700">
@@ -186,6 +191,17 @@ function AdminDashboard({ currentUser, onLogout }) {
           }`}
         >
           ✈️ Gestion Avions
+        </button>
+        
+        <button 
+          onClick={() => setActiveTab("utilisateurs")}
+          className={`p-3 text-left text-base transition-colors duration-200 rounded-lg ${
+            activeTab === "utilisateurs" 
+              ? 'bg-blue-600 text-white' 
+              : 'text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          👥 Gestion Utilisateurs
         </button>
         
         <button 
@@ -303,6 +319,11 @@ function AdminDashboard({ currentUser, onLogout }) {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Gestion Utilisateurs */}
+        {activeTab === "utilisateurs" && (
+          <AdminUtilisateurs />
         )}
 
         {/* Rapports */}

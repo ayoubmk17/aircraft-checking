@@ -5,7 +5,14 @@ export default function AdminUtilisateurs() {
   const [utilisateurs, setUtilisateurs] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [form, setForm] = useState({ nom: '', email: '', role: 'ADMIN', id: null });
+  const [form, setForm] = useState({ 
+    prenom: '', 
+    nom: '', 
+    email: '', 
+    password: '', 
+    role: 'ADMIN', 
+    id: null 
+  });
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
@@ -24,7 +31,14 @@ export default function AdminUtilisateurs() {
     fetchUtilisateurs();
   }, []);
 
-  const openModal = (user = { nom: '', email: '', role: 'ADMIN', id: null }) => {
+  const openModal = (user = { 
+    prenom: '', 
+    nom: '', 
+    email: '', 
+    password: '', 
+    role: 'ADMIN', 
+    id: null 
+  }) => {
     setForm(user);
     setEditMode(!!user.id);
     setModalOpen(true);
@@ -32,7 +46,14 @@ export default function AdminUtilisateurs() {
 
   const closeModal = () => {
     setModalOpen(false);
-    setForm({ nom: '', email: '', role: 'ADMIN', id: null });
+    setForm({ 
+      prenom: '', 
+      nom: '', 
+      email: '', 
+      password: '', 
+      role: 'ADMIN', 
+      id: null 
+    });
     setEditMode(false);
   };
 
@@ -53,7 +74,7 @@ export default function AdminUtilisateurs() {
       fetchUtilisateurs();
       closeModal();
     } catch (e) {
-      setFeedback({ type: 'error', message: "Erreur lors de l'enregistrement." });
+      setFeedback({ type: 'error', message: `Erreur lors de l'enregistrement: ${e.message}` });
     }
   };
 
@@ -77,6 +98,7 @@ export default function AdminUtilisateurs() {
         <table border="1" cellPadding="8" style={{marginTop:16}}>
           <thead>
             <tr>
+              <th>Prénom</th>
               <th>Nom</th>
               <th>Email</th>
               <th>Rôle</th>
@@ -86,6 +108,7 @@ export default function AdminUtilisateurs() {
           <tbody>
             {utilisateurs.map(user => (
               <tr key={user.id}>
+                <td>{user.prenom}</td>
                 <td>{user.nom}</td>
                 <td>{user.email}</td>
                 <td>{user.role}</td>
@@ -102,9 +125,42 @@ export default function AdminUtilisateurs() {
         <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center'}}>
           <form onSubmit={handleSubmit} style={{background:'#fff',padding:24,borderRadius:8,minWidth:300,display:'flex',flexDirection:'column',gap:12}}>
             <h3>{editMode ? 'Modifier' : 'Ajouter'} un Utilisateur</h3>
-            <input name="nom" placeholder="Nom" value={form.nom} onChange={handleChange} required />
-            <input name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
-            <select name="role" value={form.role} onChange={handleChange} required>
+            <input 
+              name="prenom" 
+              placeholder="Prénom" 
+              value={form.prenom} 
+              onChange={handleChange} 
+              required 
+            />
+            <input 
+              name="nom" 
+              placeholder="Nom" 
+              value={form.nom} 
+              onChange={handleChange} 
+              required 
+            />
+            <input 
+              name="email" 
+              type="email" 
+              placeholder="Email" 
+              value={form.email} 
+              onChange={handleChange} 
+              required 
+            />
+            <input 
+              name="password" 
+              type="password" 
+              placeholder="Mot de passe" 
+              value={form.password} 
+              onChange={handleChange} 
+              required={!editMode}
+            />
+            <select 
+              name="role" 
+              value={form.role} 
+              onChange={handleChange} 
+              required
+            >
               <option value="ADMIN">ADMIN</option>
               <option value="INGENIEUR">INGENIEUR</option>
               <option value="MECANICIEN">MECANICIEN</option>
