@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/avions")
+@CrossOrigin(origins = "*")
 public class AvionController {
     private final AvionService avionService;
 
@@ -35,6 +36,11 @@ public class AvionController {
     @PostMapping
     public Avion create(@RequestBody Avion avion) {
         return avionService.create(avion);
+    }
+
+    @PutMapping("/{id}")
+    public Avion update(@PathVariable Long id, @RequestBody Avion avion) {
+        return avionService.update(id, avion);
     }
 
     @DeleteMapping("/{id}")

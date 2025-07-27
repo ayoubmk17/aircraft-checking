@@ -38,15 +38,14 @@ public class AvionService {
     public Avion update(Long id, Avion avion) {
         Optional<Avion> optional = avionRepository.findById(id);
         if(optional.isPresent()) {
-            Avion updated=optional.get();
+            Avion updated = optional.get();
             updated.setComposants(avion.getComposants());
             updated.setImmatriculation(avion.getImmatriculation());
             updated.setStatut(avion.getStatut());
             updated.setModele(avion.getModele());
-            avionRepository.save(updated);
+            updated.setDateDerniereMaintenance(avion.getDateDerniereMaintenance());
+            return avionRepository.save(updated);
         }
-        return optional.get();
-
-
+        throw new RuntimeException("Avion not found with id: " + id);
     }
 }

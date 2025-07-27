@@ -3,6 +3,7 @@ package com.aircraftbackend.entities;
 import lombok.*;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -20,11 +21,13 @@ public class Avion {
     @Enumerated(EnumType.STRING)
     private Statut statut;
 
+    private LocalDate dateDerniereMaintenance;
+
     @OneToMany(mappedBy = "avion", cascade = CascadeType.ALL)
     @com.fasterxml.jackson.annotation.JsonManagedReference
     private List<Composant> composants;
 
     public enum Statut {
-        EN_ATTENTE, EN_INSPECTION, A_REPARER, TERMINE
+        ACTIF, MAINTENANCE, RETIRE
     }
 }
