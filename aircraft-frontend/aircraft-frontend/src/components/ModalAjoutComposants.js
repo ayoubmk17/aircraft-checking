@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const MODELES_COMPOSANTS = [
   "Moteur",
@@ -11,8 +11,12 @@ const MODELES_COMPOSANTS = [
   "Cockpit",
 ];
 
-export default function ModalAjoutComposants({ avion, onClose, onSave }) {
-  const [selected, setSelected] = useState([]);
+export default function ModalAjoutComposants({ avion, onClose, onSave, modelesDejaPresents = [] }) {
+  const [selected, setSelected] = useState(modelesDejaPresents);
+
+  useEffect(() => {
+    setSelected(modelesDejaPresents);
+  }, [modelesDejaPresents]);
 
   const handleCheck = (modele) => {
     setSelected((prev) =>

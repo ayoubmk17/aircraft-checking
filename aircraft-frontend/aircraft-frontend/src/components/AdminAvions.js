@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { getAvions, createAvion, deleteAvion, updateAvion } from '../services/api';
 
 export default function AdminAvions() {
@@ -15,6 +15,25 @@ export default function AdminAvions() {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
+  const [showHistory, setShowHistory] = useState(false);
+  const historyRef = useRef();
+
+  // Fermer le dropdown si on clique en dehors
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (historyRef.current && !historyRef.current.contains(event.target)) {
+        setShowHistory(false);
+      }
+    };
+    if (showHistory) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showHistory]);
 
   const fetchAvions = async () => {
     setLoading(true);
@@ -99,12 +118,39 @@ export default function AdminAvions() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Gestion des Avions</h2>
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow flex items-center gap-2"
-          onClick={() => openModal()}
-        >
-          <span className="text-lg font-bold">+</span> Ajouter un Avion
-        </button>
+        <div className="flex items-center gap-2 relative">
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow flex items-center gap-2"
+            onClick={() => setShowHistory((v) => !v)}
+            title="Historique des créations"
+            style={{ minWidth: 120 }}
+          >
+            <span className="text-lg">🕑</span>
+            <span className="font-bold">Historique</span>
+          </button>
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow flex items-center gap-2"
+            onClick={() => openModal()}
+          >
+            <span className="text-lg font-bold">+</span> Ajouter un Avion
+          </button>
+          {showHistory && (
+            <div ref={historyRef} className="absolute right-0 top-12 bg-white border rounded shadow-lg w-72 z-50">
+              <div className="p-3 border-b font-bold text-gray-700">5 derniers avions créés</div>
+              <ul className="max-h-60 overflow-y-auto">
+                {[...avions].sort((a, b) => b.id - a.id).slice(0, 5).map(avion => (
+                  <li key={avion.id} className="px-4 py-2 hover:bg-gray-100 flex flex-col">
+                    <span className="font-semibold">{avion.modele}</span>
+                    <span className="text-xs text-gray-500">{avion.immatriculation}</span>
+                  </li>
+                ))}
+                {avions.length === 0 && (
+                  <li className="px-4 py-2 text-gray-400">Aucun avion</li>
+                )}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
       {feedback && (
         <div className={`mb-4 p-2 rounded ${feedback.type === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{feedback.message}</div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   getAvions, 
   createAvion, 
@@ -20,6 +20,25 @@ function AdminDashboard({ currentUser, onLogout }) {
   const [selectedRapport, setSelectedRapport] = useState(null);
   const [avionToDelete, setAvionToDelete] = useState(null);
   const [error, setError] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
+  const historyRef = useRef();
+
+  // Fermer le dropdown si on clique en dehors
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (historyRef.current && !historyRef.current.contains(event.target)) {
+        setShowHistory(false);
+      }
+    };
+    if (showHistory) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showHistory]);
 
   // Charger les données au montage du composant
   useEffect(() => {
@@ -250,15 +269,41 @@ function AdminDashboard({ currentUser, onLogout }) {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Gestion des Avions</h2>
-              <button
-                onClick={handleAddAvion}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-              >
-                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Ajouter un Avion
-              </button>
+              <div className="flex items-center gap-2 relative">
+                <button
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow flex items-center gap-2"
+                  onClick={() => setShowHistory((v) => !v)}
+                  title="Historique des créations"
+                  style={{ minWidth: 120 }}
+                >
+                  <span className="font-bold">Historique</span>
+                </button>
+                <button
+                  onClick={handleAddAvion}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                >
+                  <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Ajouter un Avion
+                </button>
+                {showHistory && (
+                  <div ref={historyRef} className="absolute right-0 top-12 bg-white border rounded shadow-lg w-72 z-50">
+                    <div className="p-3 border-b font-bold text-gray-700">5 derniers avions créés</div>
+                    <ul className="max-h-60 overflow-y-auto">
+                      {[...avions].sort((a, b) => b.id - a.id).slice(0, 5).map(avion => (
+                        <li key={avion.id} className="px-4 py-2 hover:bg-gray-100 flex flex-col">
+                          <span className="font-semibold">{avion.modele}</span>
+                          <span className="text-xs text-gray-500">{avion.immatriculation}</span>
+                        </li>
+                      ))}
+                      {avions.length === 0 && (
+                        <li className="px-4 py-2 text-gray-400">Aucun avion</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="bg-white shadow overflow-hidden sm:rounded-md">

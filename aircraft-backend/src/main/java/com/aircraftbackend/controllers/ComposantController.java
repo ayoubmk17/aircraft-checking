@@ -44,7 +44,20 @@ public class ComposantController {
 
     @PutMapping("/{id}")
     public Composant update(@PathVariable Long id, @RequestBody Composant composant) {
-        return composantService.update(id, composant);
+        System.out.println("=== DEBUG CONTROLLER COMPOSANT UPDATE ===");
+        System.out.println("ID reçu: " + id);
+        System.out.println("Payload reçu: " + composant);
+        System.out.println("État reçu: " + composant.getEtat());
+        System.out.println("Nom reçu: " + composant.getNom());
+        System.out.println("Avion reçu: " + (composant.getAvion() != null ? composant.getAvion().getId() : "null"));
+        
+        Composant result = composantService.update(id, composant);
+        
+        System.out.println("Résultat retourné: " + result);
+        System.out.println("État retourné: " + (result != null ? result.getEtat() : "null"));
+        System.out.println("=== FIN DEBUG CONTROLLER ===");
+        
+        return result;
     }
 
     @DeleteMapping("/{id}")

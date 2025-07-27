@@ -65,32 +65,56 @@ export default function MechanicDashboard({ currentUser, onLogout }) {
   const handleSaveReparation = async (repares, remarque) => {
     setLoading(true);
     try {
+      console.log('Début réparation - Composants à réparer:', repares);
+      console.log('Composants en erreur disponibles:', composantsErreur);
+      
       // 1. Mettre à jour l'état des composants réparés
       await Promise.all(repares.map(async (id) => {
         const composant = composantsErreur.find(c => c.id === id);
-        await updateComposant(id, {
+        console.log('Mise à jour composant:', id, 'état actuel:', composant?.etat);
+        
+        if (!composant) {
+          console.error('Composant non trouvé:', id);
+          return;
+        }
+        
+        const updatedComposant = {
           ...composant,
           etat: 'REPARE',
           avion: composant.avion ? { id: composant.avion.id } : { id: selectedAvion.id }
-        });
+        };
+        
+        console.log('Payload de mise à jour:', updatedComposant);
+        
+        const result = await updateComposant(id, updatedComposant);
+        console.log('Résultat mise à jour:', result);
       }));
+      
       // 2. Vérifier si tous les composants de l'avion sont OK ou REPARE
       const allComposants = await getComposantsByAvion(selectedAvion.id);
+      console.log('Tous les composants après mise à jour:', allComposants);
+      
       const tousOkOuRepares = allComposants.every(c => c.etat === 'OK' || c.etat === 'REPARE');
+      console.log('Tous OK ou réparés:', tousOkOuRepares);
+      
       if (tousOkOuRepares) {
         await updateAvion(selectedAvion.id, { ...selectedAvion, statut: 'ACTIF' });
+        console.log('Avion mis à jour vers ACTIF');
       }
+      
       // 3. Créer un rapport de maintenance
       await createRapport({
         composant: null, // rapport global, ou tu peux boucler sur chaque composant réparé si besoin
         mecanicien: { id: currentUser.id },
-        description: `Maintenance effectuée sur l’avion ${selectedAvion.modele} (${selectedAvion.immatriculation}) : ${repares.length} composant(s) réparé(s).\nRemarques : ${remarque}`,
+        description: `Maintenance effectuée sur l'avion ${selectedAvion.modele} (${selectedAvion.immatriculation}) : ${repares.length} composant(s) réparé(s).\nRemarques : ${remarque}`,
         dateRapport: new Date().toISOString().slice(0, 10)
       });
+      
       setFeedback({ type: 'success', message: "Réparation enregistrée et rapport généré." });
       fetchAvions();
       fetchRapports();
     } catch (e) {
+      console.error('Erreur lors de la réparation:', e);
       setFeedback({ type: 'error', message: "Erreur lors de la réparation." });
     }
     handleCloseModal();

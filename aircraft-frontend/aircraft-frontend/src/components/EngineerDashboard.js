@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ModalAjoutComposants from './ModalAjoutComposants';
 import ModalCheckComposants from './ModalCheckComposants';
+import ModalVoirComposants from './ModalVoirComposants';
 import { getAvions, getComposants, createComposant, getComposantsByAvion, updateComposant, updateAvion, createRapport } from '../services/api';
 
 export default function EngineerDashboard({ currentUser, onLogout }) {
@@ -13,6 +14,46 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
   const [modalCheckOpen, setModalCheckOpen] = useState(false);
   const [selectedAvionCheck, setSelectedAvionCheck] = useState(null);
   const [composantsCheck, setComposantsCheck] = useState([]);
+  const [modalVoirOpen, setModalVoirOpen] = useState(false);
+  const [selectedAvionVoir, setSelectedAvionVoir] = useState(null);
+  const [composantsVoir, setComposantsVoir] = useState([]);
+
+  // Liste des modèles de composants (doit être identique à ModalAjoutComposants.js)
+  const MODELES_COMPOSANTS = [
+    "Moteur",
+    "Aile gauche",
+    "Aile droite",
+    "Train d’atterrissage",
+    "Système hydraulique",
+    "Système électrique",
+    "Fuselage",
+    "Cockpit",
+  ];
+
+  // Fonction utilitaire pour savoir si tous les modèles sont présents pour un avion
+  const [composantsParAvion, setComposantsParAvion] = useState({});
+
+  // Charger les composants d'un avion à la volée
+  const fetchComposantsForAvion = async (avionId) => {
+    if (!composantsParAvion[avionId]) {
+      try {
+        const composants = await getComposantsByAvion(avionId);
+        setComposantsParAvion(prev => ({ ...prev, [avionId]: composants }));
+        return composants;
+      } catch (e) {
+        return [];
+      }
+    }
+    return composantsParAvion[avionId];
+  };
+
+  // Vérifie si tous les modèles sont présents pour un avion
+  const hasAllComposants = (avionId) => {
+    if (!composantsParAvion[avionId]) return false; // On ne sait pas, donc on laisse actif
+    const composants = composantsParAvion[avionId];
+    const modelesPresents = composants.map(c => c.nom);
+    return MODELES_COMPOSANTS.every(modele => modelesPresents.includes(modele));
+  };
 
   // Charger tous les avions
   const fetchAvions = async () => {
@@ -36,7 +77,9 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
   const avionsMaintenance = avions.filter(a => a.statut === 'MAINTENANCE');
 
   // Ouvre le modal d'ajout de composants
-  const handleOpenModal = (avion) => {
+  const handleOpenModal = async (avion) => {
+    // Charger les composants de l'avion avant d'ouvrir le modal
+    await fetchComposantsForAvion(avion.id);
     setSelectedAvion(avion);
     setModalOpen(true);
   };
@@ -55,6 +98,9 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
       })));
       setFeedback({ type: 'success', message: "Composants ajoutés avec succès." });
       fetchAvions();
+      // Rafraîchir la liste des composants pour cet avion
+      const composants = await getComposantsByAvion(selectedAvion.id);
+      setComposantsParAvion(prev => ({ ...prev, [selectedAvion.id]: composants }));
     } catch (e) {
       setFeedback({ type: 'error', message: "Erreur lors de l'ajout des composants." });
     }
@@ -121,6 +167,26 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
     setLoading(false);
   };
 
+  // Ouvre le modal pour voir les composants
+  const handleOpenVoirModal = async (avion) => {
+    setSelectedAvionVoir(avion);
+    setModalVoirOpen(true);
+    setLoading(true);
+    try {
+      const composants = await getComposantsByAvion(avion.id);
+      setComposantsVoir(composants);
+    } catch (e) {
+      setFeedback({ type: 'error', message: "Erreur lors du chargement des composants." });
+      setComposantsVoir([]);
+    }
+    setLoading(false);
+  };
+  const handleCloseVoirModal = () => {
+    setModalVoirOpen(false);
+    setSelectedAvionVoir(null);
+    setComposantsVoir([]);
+  };
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -163,7 +229,22 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
                       <td className="py-2 px-4 border-b">{avion.immatriculation}</td>
                       <td className="py-2 px-4 border-b">{avion.statut}</td>
                       <td className="py-2 px-4 border-b">
-                        <button onClick={() => handleOpenModal(avion)} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Ajouter des composants</button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleOpenVoirModal(avion)}
+                            className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700"
+                          >
+                            Voir Composants
+                          </button>
+                          <button
+                            onClick={() => handleOpenModal(avion)}
+                            className={`px-3 py-1 rounded ${hasAllComposants(avion.id) ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                            disabled={hasAllComposants(avion.id)}
+                            onMouseEnter={() => fetchComposantsForAvion(avion.id)}
+                          >
+                            Ajouter des composants
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -213,6 +294,9 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
             avion={selectedAvion}
             onClose={handleCloseModal}
             onSave={handleSaveComposants}
+            modelesDejaPresents={
+              (composantsParAvion[selectedAvion.id] || []).map(c => c.nom)
+            }
           />
         )}
         {/* Modal de checking des composants NOK */}
@@ -222,6 +306,14 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
             composants={composantsCheck}
             onClose={handleCloseCheckModal}
             onSave={handleSaveChecking}
+          />
+        )}
+        {/* Modal pour voir les composants */}
+        {modalVoirOpen && selectedAvionVoir && (
+          <ModalVoirComposants
+            avion={selectedAvionVoir}
+            composants={composantsVoir}
+            onClose={handleCloseVoirModal}
           />
         )}
       </main>
