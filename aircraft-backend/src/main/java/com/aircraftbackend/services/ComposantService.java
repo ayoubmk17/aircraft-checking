@@ -36,19 +36,16 @@ public class ComposantService {
             System.out.println("Nouvel avion: " + (composant.getAvion() != null ? composant.getAvion().getId() : "null"));
             
             // Forcer la mise à jour
-            updated.setNom(composant.getNom());
-            updated.setDescription(composant.getDescription());
-            updated.setAvion(composant.getAvion());
-            updated.setEtat(composant.getEtat());
+            if(composant.getNom() != null)  updated.setNom(composant.getNom());
+            if(composant.getDescription() != null)  updated.setDescription(composant.getDescription());
+            if(composant.getAvion() !=null) updated.setAvion(composant.getAvion());
+            if(composant.getEtat()!=null) updated.setEtat(composant.getEtat());
             
             // Sauvegarder
             Composant saved = composantRepository.save(updated);
             System.out.println("État après sauvegarde: " + saved.getEtat());
             
-            // Forcer le commit et vérifier en base
-            composantRepository.flush(); // Force la synchronisation avec la base
-            System.out.println("Flush effectué");
-            
+
             // Vérifier en relisant depuis la base
             Optional<Composant> verification = composantRepository.findById(id);
             if (verification.isPresent()) {

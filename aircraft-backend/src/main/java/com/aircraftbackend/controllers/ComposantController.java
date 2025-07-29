@@ -51,13 +51,14 @@ public class ComposantController {
         System.out.println("Nom reçu: " + composant.getNom());
         System.out.println("Avion reçu: " + (composant.getAvion() != null ? composant.getAvion().getId() : "null"));
         
-        Composant result = composantService.update(id, composant);
-        
+        return composantService.update(id, composant);
+        /*
         System.out.println("Résultat retourné: " + result);
         System.out.println("État retourné: " + (result != null ? result.getEtat() : "null"));
         System.out.println("=== FIN DEBUG CONTROLLER ===");
+
+         */
         
-        return result;
     }
 
     @DeleteMapping("/{id}")
