@@ -25,4 +25,10 @@ public class Composant {
     public enum Etat {
         OK, ERREUR, REPARE
     }
+
+    @Transient
+    public Long getAvionId() {
+        return avion != null ? avion.getId() : null;
+    }
+
 }
