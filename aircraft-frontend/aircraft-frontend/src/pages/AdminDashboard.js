@@ -177,9 +177,17 @@ function AdminDashboard({ currentUser, onLogout }) {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen" style={{
+      backgroundImage: 'url(/ram-bg.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}>
+      {/* Overlay sombre pour uniformiser l'opacité */}
+      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      
       {/* Navbar verticale */}
-      <nav className="w-64 bg-gray-800 text-white p-6 flex flex-col gap-3">
+      <nav className="w-64 bg-gray-800 text-white p-6 flex flex-col gap-3 relative z-10">
         {/* Header avec logo */}
         <div className="flex items-center gap-3 mb-8 p-3 bg-gray-700 rounded-lg">
           <img 
@@ -234,16 +242,6 @@ function AdminDashboard({ currentUser, onLogout }) {
           📊 Rapports
         </button>
         
-        <button 
-          onClick={() => setActiveTab("notifications")}
-          className={`p-3 text-left text-base transition-colors duration-200 rounded-lg ${
-            activeTab === "notifications" 
-              ? 'bg-blue-600 text-white' 
-              : 'text-gray-300 hover:bg-gray-700'
-          }`}
-        >
-          🔔 Notifications
-        </button>
         
         {/* Bouton de déconnexion */}
         <div className="mt-auto pt-6">
@@ -257,9 +255,9 @@ function AdminDashboard({ currentUser, onLogout }) {
       </nav>
 
       {/* Contenu principal */}
-      <main className="flex-1 p-6 bg-gray-50 overflow-auto">
+      <main className="flex-1 p-6 overflow-auto relative z-10">
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md bg-opacity-90">
             <p className="text-red-600">{error}</p>
           </div>
         )}
@@ -268,7 +266,7 @@ function AdminDashboard({ currentUser, onLogout }) {
         {activeTab === "avions" && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Gestion des Avions</h2>
+              <h2 className="text-2xl font-bold text-white">Gestion des Avions</h2>
               <div className="flex items-center gap-2 relative">
                 <button
                   className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow flex items-center gap-2"
@@ -306,7 +304,7 @@ function AdminDashboard({ currentUser, onLogout }) {
               </div>
             </div>
 
-            <div className="bg-white shadow overflow-hidden sm:rounded-md">
+            <div className="bg-white shadow overflow-hidden sm:rounded-md bg-opacity-90">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -368,15 +366,17 @@ function AdminDashboard({ currentUser, onLogout }) {
 
         {/* Gestion Utilisateurs */}
         {activeTab === "utilisateurs" && (
-          <AdminUtilisateurs />
+          <div className="bg-white bg-opacity-90 shadow rounded-lg p-6">
+            <AdminUtilisateurs />
+          </div>
         )}
 
         {/* Rapports */}
         {activeTab === "rapports" && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Tous les Rapports</h2>
+            <h2 className="text-2xl font-bold text-white">Tous les Rapports</h2>
 
-            <div className="bg-white shadow overflow-hidden sm:rounded-md">
+            <div className="bg-white shadow overflow-hidden sm:rounded-md bg-opacity-90">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -432,15 +432,6 @@ function AdminDashboard({ currentUser, onLogout }) {
           </div>
         )}
 
-        {/* Notifications */}
-        {activeTab === "notifications" && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
-            <div className="bg-white shadow rounded-lg p-6">
-              <p className="text-gray-600">Aucune nouvelle notification pour le moment.</p>
-            </div>
-          </div>
-        )}
       </main>
 
       {/* Modal Avion */}

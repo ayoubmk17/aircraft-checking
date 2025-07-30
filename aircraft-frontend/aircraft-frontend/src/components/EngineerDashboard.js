@@ -188,9 +188,17 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen" style={{
+      backgroundImage: 'url(/ram-bg.png)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}>
+      {/* Overlay sombre pour uniformiser l'opacité */}
+      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+      
       {/* Sidebar */}
-      <nav className="w-64 bg-gray-800 text-white p-6 flex flex-col gap-3">
+      <nav className="w-64 bg-gray-800 text-white p-6 flex flex-col gap-3 relative z-10">
         <div className="flex flex-col items-center mb-8">
           <img src="/ram-logo.png" alt="Logo" className="h-12 mb-2" />
           <span className="font-bold text-lg">Dashboard Ingénieur</span>
@@ -205,86 +213,90 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
         <button onClick={onLogout} className="mt-auto bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Déconnexion</button>
       </nav>
       {/* Main */}
-      <main className="flex-1 p-6 bg-gray-50 overflow-auto">
+      <main className="flex-1 p-6 overflow-auto relative z-10">
         {feedback && (
-          <div className={`mb-4 p-2 rounded ${feedback.type === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{feedback.message}</div>
+          <div className={`mb-4 p-2 rounded bg-opacity-90 ${feedback.type === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>{feedback.message}</div>
         )}
         {activeTab === 'nouveaux' && (
           <div>
-            <h2 className="text-2xl font-bold mb-4">Nouveaux Avions à Checker</h2>
-            {loading ? <p>Chargement...</p> : (
-              <table className="min-w-full bg-white border rounded shadow">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="py-2 px-4 border-b">Modèle</th>
-                    <th className="py-2 px-4 border-b">Immatriculation</th>
-                    <th className="py-2 px-4 border-b">Statut</th>
-                    <th className="py-2 px-4 border-b">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {avionsNouveaux.map(avion => (
-                    <tr key={avion.id} className="hover:bg-gray-50">
-                      <td className="py-2 px-4 border-b">{avion.modele}</td>
-                      <td className="py-2 px-4 border-b">{avion.immatriculation}</td>
-                      <td className="py-2 px-4 border-b">{avion.statut}</td>
-                      <td className="py-2 px-4 border-b">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleOpenVoirModal(avion)}
-                            className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700"
-                          >
-                            Voir Composants
-                          </button>
-                          <button
-                            onClick={() => handleOpenModal(avion)}
-                            className={`px-3 py-1 rounded ${hasAllComposants(avion.id) ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-                            disabled={hasAllComposants(avion.id)}
-                            onMouseEnter={() => fetchComposantsForAvion(avion.id)}
-                          >
-                            Ajouter des composants
-                          </button>
-                        </div>
-                      </td>
+            <h2 className="text-2xl font-bold mb-4 text-white">Nouveaux Avions à Checker</h2>
+            {loading ? <p className="text-white">Chargement...</p> : (
+              <div className="bg-white shadow overflow-hidden sm:rounded-md bg-opacity-90">
+                <table className="min-w-full bg-white border rounded shadow">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="py-2 px-4 border-b">Modèle</th>
+                      <th className="py-2 px-4 border-b">Immatriculation</th>
+                      <th className="py-2 px-4 border-b">Statut</th>
+                      <th className="py-2 px-4 border-b">Actions</th>
                     </tr>
-                  ))}
-                  {avionsNouveaux.length === 0 && (
-                    <tr><td colSpan={4} className="text-center py-4 text-gray-400">Aucun nouvel avion à checker.</td></tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {avionsNouveaux.map(avion => (
+                      <tr key={avion.id} className="hover:bg-gray-50">
+                        <td className="py-2 px-4 border-b">{avion.modele}</td>
+                        <td className="py-2 px-4 border-b">{avion.immatriculation}</td>
+                        <td className="py-2 px-4 border-b">{avion.statut}</td>
+                        <td className="py-2 px-4 border-b">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleOpenVoirModal(avion)}
+                              className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700"
+                            >
+                              Voir Composants
+                            </button>
+                            <button
+                              onClick={() => handleOpenModal(avion)}
+                              className={`px-3 py-1 rounded ${hasAllComposants(avion.id) ? 'bg-gray-400 text-gray-200 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                              disabled={hasAllComposants(avion.id)}
+                              onMouseEnter={() => fetchComposantsForAvion(avion.id)}
+                            >
+                              Ajouter des composants
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {avionsNouveaux.length === 0 && (
+                      <tr><td colSpan={4} className="text-center py-4 text-gray-400">Aucun nouvel avion à checker.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}
         {activeTab === 'maintenance' && (
           <div>
-            <h2 className="text-2xl font-bold mb-4">Avions en Maintenance</h2>
-            {loading ? <p>Chargement...</p> : (
-              <table className="min-w-full bg-white border rounded shadow">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="py-2 px-4 border-b">Modèle</th>
-                    <th className="py-2 px-4 border-b">Immatriculation</th>
-                    <th className="py-2 px-4 border-b">Statut</th>
-                    <th className="py-2 px-4 border-b">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {avionsMaintenance.map(avion => (
-                    <tr key={avion.id} className="hover:bg-gray-50">
-                      <td className="py-2 px-4 border-b">{avion.modele}</td>
-                      <td className="py-2 px-4 border-b">{avion.immatriculation}</td>
-                      <td className="py-2 px-4 border-b">{avion.statut}</td>
-                      <td className="py-2 px-4 border-b">
-                        <button onClick={() => handleOpenCheckModal(avion)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Vérifier</button>
-                      </td>
+            <h2 className="text-2xl font-bold mb-4 text-white">Avions en Maintenance</h2>
+            {loading ? <p className="text-white">Chargement...</p> : (
+              <div className="bg-white shadow overflow-hidden sm:rounded-md bg-opacity-90">
+                <table className="min-w-full bg-white border rounded shadow">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="py-2 px-4 border-b">Modèle</th>
+                      <th className="py-2 px-4 border-b">Immatriculation</th>
+                      <th className="py-2 px-4 border-b">Statut</th>
+                      <th className="py-2 px-4 border-b">Actions</th>
                     </tr>
-                  ))}
-                  {avionsMaintenance.length === 0 && (
-                    <tr><td colSpan={4} className="text-center py-4 text-gray-400">Aucun avion en maintenance.</td></tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {avionsMaintenance.map(avion => (
+                      <tr key={avion.id} className="hover:bg-gray-50">
+                        <td className="py-2 px-4 border-b">{avion.modele}</td>
+                        <td className="py-2 px-4 border-b">{avion.immatriculation}</td>
+                        <td className="py-2 px-4 border-b">{avion.statut}</td>
+                        <td className="py-2 px-4 border-b">
+                          <button onClick={() => handleOpenCheckModal(avion)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700">Vérifier</button>
+                        </td>
+                      </tr>
+                    ))}
+                    {avionsMaintenance.length === 0 && (
+                      <tr><td colSpan={4} className="text-center py-4 text-gray-400">Aucun avion en maintenance.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}
