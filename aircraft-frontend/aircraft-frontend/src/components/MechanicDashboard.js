@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { getComposants, updateComposant, getComposantsByAvion, updateAvion, getAvions, createRapport } from '../services/api';
+import { updateComposant, getComposantsByAvion, updateAvion, getAvions, createRapport } from '../services/api';
 
 const MechanicDashboard = ({ currentUser, onLogout }) => {
   const [avions, setAvions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedAvion, setSelectedAvion] = useState(null);
   const [showComposants, setShowComposants] = useState(false);
+  const [repairingComponent, setRepairingComponent] = useState(null);
 
   useEffect(() => {
     fetchAvionsWithComposants();
@@ -55,7 +56,16 @@ const MechanicDashboard = ({ currentUser, onLogout }) => {
   };
 
   const handleReparer = async (comp) => {
+    // Protection contre les doubles clics et composants déjà réparés
+    if (repairingComponent === comp.id || comp.etat === 'REPARE') {
+      return;
+    }
+    
+    setRepairingComponent(comp.id);
+    
     try {
+      console.log(`Début de la réparation du composant ${comp.id}`);
+      
       // 1. Mettre à jour le composant à "REPARE"
       const updated = {
         ...comp,
@@ -94,17 +104,33 @@ const MechanicDashboard = ({ currentUser, onLogout }) => {
         dateRapport: new Date().toISOString().slice(0, 10)
       });
 
-      // 6. Rafraîchir les données
-      fetchAvionsWithComposants();
-      // 7. Mettre à jour la vue des composants si on est dans le modal
+      // 6. Mettre à jour localement l'état des composants
       if (selectedAvion) {
-        const updatedAvion = avions.find(a => a.id === selectedAvion.id);
-        if (updatedAvion) {
-          setSelectedAvion(updatedAvion);
-        }
+        const updatedComposants = selectedAvion.composants.map(c => 
+          c.id === comp.id ? { ...c, etat: 'REPARE' } : c
+        );
+        
+        const updatedSelectedAvion = {
+          ...selectedAvion,
+          composants: updatedComposants,
+          composantsErreur: updatedComposants.filter(c => c.etat === 'ERREUR').length
+        };
+        
+        setSelectedAvion(updatedSelectedAvion);
+        
+        // Mettre à jour aussi l'état global des avions
+        setAvions(prevAvions => 
+          prevAvions.map(avion => 
+            avion.id === selectedAvion.id ? updatedSelectedAvion : avion
+          )
+        );
       }
+      
+      console.log(`Réparation du composant ${comp.id} terminée avec succès`);
     } catch (error) {
       console.error('Erreur lors de la réparation du composant:', error);
+    } finally {
+      setRepairingComponent(null);
     }
   };
 
@@ -229,7 +255,6 @@ const MechanicDashboard = ({ currentUser, onLogout }) => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">État</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
           </tr>
@@ -238,7 +263,6 @@ const MechanicDashboard = ({ currentUser, onLogout }) => {
                     {selectedAvion?.composants.filter(c => c.etat === 'ERREUR').map((comp) => (
                       <tr key={comp.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{comp.nom}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{comp.description}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
                             {comp.etat}
@@ -247,9 +271,14 @@ const MechanicDashboard = ({ currentUser, onLogout }) => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2 text-center">
                 <button
                   onClick={() => handleReparer(comp)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+                  disabled={repairingComponent === comp.id}
+                  className={`px-3 py-1 rounded text-white ${
+                    repairingComponent === comp.id 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-green-600 hover:bg-green-700'
+                  }`}
                 >
-                  Réparer
+                  {repairingComponent === comp.id ? 'Réparation...' : 'Réparer'}
                 </button>
               </td>
             </tr>

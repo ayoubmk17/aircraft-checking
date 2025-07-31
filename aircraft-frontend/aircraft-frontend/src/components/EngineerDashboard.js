@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import ModalAjoutComposants from './ModalAjoutComposants';
 import ModalCheckComposants from './ModalCheckComposants';
 import ModalVoirComposants from './ModalVoirComposants';
-import { getAvions, getComposants, createComposant, getComposantsByAvion, updateComposant, updateAvion, createRapport } from '../services/api';
+import { getAvions, createComposant, getComposantsByAvion, updateComposant, updateAvion, createRapport } from '../services/api';
 
 export default function EngineerDashboard({ currentUser, onLogout }) {
   const [activeTab, setActiveTab] = useState('nouveaux');
@@ -138,7 +138,7 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
           await updateComposant(c.id, {
             ...c,
             etat: newEtat,
-            avion: c.avion ? { id: c.avion.id } : { id: selectedAvionCheck.id }
+            avion: { id: selectedAvionCheck.id }
           });
         }
       }));
@@ -162,7 +162,8 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
       }
       fetchAvions();
     } catch (e) {
-      setFeedback({ type: 'error', message: "Erreur lors du checking des composants." });
+      console.error('Erreur détaillée lors du checking:', e);
+      setFeedback({ type: 'error', message: `Erreur lors du checking des composants: ${e.response?.data?.message || e.message}` });
     }
     handleCloseCheckModal();
     setLoading(false);

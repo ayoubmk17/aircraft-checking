@@ -95,10 +95,7 @@ function AdminDashboard({ currentUser, onLogout }) {
     setShowRapportModal(true);
   };
 
-  const getAvionName = (avionId) => {
-    const avion = avions.find((a) => a.id === avionId);
-    return avion ? `${avion.modele} (${avion.immatriculation})` : "Inconnu";
-  };
+
 
   const handleSaveAvion = async (avionData) => {
     try {
@@ -467,16 +464,26 @@ function AvionModal({ avion, onClose, onSave }) {
     modele: avion?.modele || "",
     immatriculation: avion?.immatriculation || "",
     statut: avion?.statut || "ACTIF",
-    dateDerniereMaintenance: avion?.dateDerniereMaintenance || "",
+    dateDerniereMaintenance: avion?.dateDerniereMaintenance || new Date().toISOString().slice(0, 10),
   });
+
+  // Mettre à jour la date de dernière maintenance si elle est vide
+  useEffect(() => {
+    if (!formData.dateDerniereMaintenance) {
+      setFormData(prev => ({
+        ...prev,
+        dateDerniereMaintenance: new Date().toISOString().slice(0, 10)
+      }));
+    }
+  }, [formData.dateDerniereMaintenance]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Convertir la date en format ISO si elle existe
+    // S'assurer que la date de dernière maintenance est définie
     const dataToSend = {
       ...formData,
-      dateDerniereMaintenance: formData.dateDerniereMaintenance || null
+      dateDerniereMaintenance: formData.dateDerniereMaintenance || new Date().toISOString().slice(0, 10)
     };
     
     onSave(dataToSend);
@@ -524,12 +531,21 @@ function AvionModal({ avion, onClose, onSave }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Dernière Maintenance</label>
-              <input
-                type="date"
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={formData.dateDerniereMaintenance}
-                onChange={(e) => setFormData((prev) => ({ ...prev, dateDerniereMaintenance: e.target.value }))}
-              />
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  className="mt-1 block flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.dateDerniereMaintenance}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, dateDerniereMaintenance: e.target.value }))}
+                />
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, dateDerniereMaintenance: new Date().toISOString().slice(0, 10) }))}
+                  className="mt-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                >
+                  Aujourd'hui
+                </button>
+              </div>
             </div>
             <div className="flex justify-end space-x-3 pt-4">
               <button

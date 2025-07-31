@@ -115,11 +115,6 @@ export default function LoginPage({ onLoginSuccess }) {
               {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
-
-          <div className="mt-6 text-xs text-gray-500 bg-gray-50 p-4 rounded-md">
-            <p><strong>Admin:</strong> admin@admin.com / admin123</p>
-            <p className="text-gray-400 mt-1">Create more users in the admin dashboard</p>
-          </div>
         </div>
       </div>
     </div>
