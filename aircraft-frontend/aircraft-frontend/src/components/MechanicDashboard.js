@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getComposants, updateComposant, getComposantsByAvion, updateAvion, getAvions } from '../services/api';
+import { getComposants, updateComposant, getComposantsByAvion, updateAvion, getAvions, createRapport } from '../services/api';
 
 const MechanicDashboard = ({ currentUser, onLogout }) => {
   const [avions, setAvions] = useState([]);
@@ -85,9 +85,18 @@ const MechanicDashboard = ({ currentUser, onLogout }) => {
           console.log(`Avion ${avionId} mis à jour avec statut ACTIF`);
         }
       }
-      // 5. Rafraîchir les données
+      // 5. Créer un rapport de réparation
+      await createRapport({
+        avion: {id: selectedAvion.id},
+        composant: { id: comp.id },
+        mecanicien: { id: currentUser.id },
+        description: `Composant ${comp.nom} de l'avion ${selectedAvion.modele} réparé par le mécanicien ${currentUser.prenom} ${currentUser.nom}`,
+        dateRapport: new Date().toISOString().slice(0, 10)
+      });
+
+      // 6. Rafraîchir les données
       fetchAvionsWithComposants();
-      // 6. Mettre à jour la vue des composants si on est dans le modal
+      // 7. Mettre à jour la vue des composants si on est dans le modal
       if (selectedAvion) {
         const updatedAvion = avions.find(a => a.id === selectedAvion.id);
         if (updatedAvion) {
@@ -223,8 +232,8 @@ const MechanicDashboard = ({ currentUser, onLogout }) => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">État</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                    </tr>
-                  </thead>
+          </tr>
+        </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {selectedAvion?.composants.filter(c => c.etat === 'ERREUR').map((comp) => (
                       <tr key={comp.id} className="hover:bg-gray-50">
@@ -236,24 +245,24 @@ const MechanicDashboard = ({ currentUser, onLogout }) => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2 text-center">
-                          <button
-                            onClick={() => handleReparer(comp)}
+                <button
+                  onClick={() => handleReparer(comp)}
                             className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-                          >
-                            Réparer
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                >
+                  Réparer
+                </button>
+              </td>
+            </tr>
+          ))}
                     {selectedAvion?.composants.filter(c => c.etat === 'ERREUR').length === 0 && (
-                      <tr>
+            <tr>
                         <td colSpan="4" className="text-center py-4 text-gray-400">
                           Aucun composant en erreur pour cet avion.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
               </div>
             </div>
           </>

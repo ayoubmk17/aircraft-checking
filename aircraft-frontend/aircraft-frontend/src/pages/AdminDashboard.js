@@ -4,7 +4,7 @@ import {
   createAvion, 
   updateAvion, 
   deleteAvion, 
-  getRapports 
+  getRapports
 } from '../services/api';
 import AdminUtilisateurs from '../components/AdminUtilisateurs';
 
@@ -141,27 +141,23 @@ function AdminDashboard({ currentUser, onLogout }) {
           )}
           
           <button className="p-3 text-left text-base transition-colors duration-200 rounded-lg bg-blue-600 text-white">
-            ✈️ Gestion Avions
+            Gestion Avions
           </button>
           
           <button className="p-3 text-left text-base transition-colors duration-200 rounded-lg text-gray-300 hover:bg-gray-700">
-            👥 Gestion Utilisateurs
+            Gestion Utilisateurs
           </button>
           
           <button className="p-3 text-left text-base transition-colors duration-200 rounded-lg text-gray-300 hover:bg-gray-700">
-            📊 Rapports
+            Rapports
           </button>
-          
-          <button className="p-3 text-left text-base transition-colors duration-200 rounded-lg text-gray-300 hover:bg-gray-700">
-            🔔 Notifications
-          </button>
-          
+
           <div className="mt-auto pt-6">
             <button 
               onClick={onLogout}
               className="w-full p-3 bg-red-500 hover:bg-red-600 text-white border-none rounded-lg cursor-pointer text-base transition-colors duration-200"
             >
-              🚪 Déconnexion
+               Déconnexion
             </button>
           </div>
         </nav>
@@ -397,16 +393,10 @@ function AdminDashboard({ currentUser, onLogout }) {
                         ID Rapport
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Avion
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Ingénieur
+                        Utilisateur
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Statut
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Actions
@@ -418,15 +408,11 @@ function AdminDashboard({ currentUser, onLogout }) {
                       <tr key={rapport.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{rapport.id}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {getAvionName(rapport.avionId)}
+                          {rapport.engineer ? `${rapport.engineer.prenom} ${rapport.engineer.nom}` : 
+                           rapport.mecanicien ? `${rapport.mecanicien.prenom} ${rapport.mecanicien.nom}` : 
+                           'Inconnu'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{rapport.ingenieurNom}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{rapport.dateRapport}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            {rapport.statut}
-                          </span>
-                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button onClick={() => handleViewRapport(rapport)} className="text-blue-600 hover:text-blue-900">
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -459,7 +445,6 @@ function AdminDashboard({ currentUser, onLogout }) {
       {showRapportModal && selectedRapport && (
         <RapportModal
           rapport={selectedRapport}
-          avionName={getAvionName(selectedRapport.avionId)}
           onClose={() => setShowRapportModal(false)}
         />
       )}
@@ -569,21 +554,13 @@ function AvionModal({ avion, onClose, onSave }) {
 }
 
 // Composant Modal pour Rapport
-function RapportModal({ rapport, avionName, onClose }) {
+function RapportModal({ rapport, onClose }) {
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div className="mt-3">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Rapport #{rapport.id}</h3>
           <div className="space-y-4">
-            <div>
-              <h4 className="font-medium text-gray-900">Avion</h4>
-              <p className="text-gray-600">{avionName}</p>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900">Ingénieur</h4>
-              <p className="text-gray-600">{rapport.ingenieurNom}</p>
-            </div>
             <div>
               <h4 className="font-medium text-gray-900">Date du Rapport</h4>
               <p className="text-gray-600">{rapport.dateRapport}</p>

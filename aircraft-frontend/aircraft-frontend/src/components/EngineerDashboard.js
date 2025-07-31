@@ -146,9 +146,10 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
       if (nokIds.length > 0) {
         await Promise.all(nokIds.map(async (id) => {
           await createRapport({
+            avion: { id: selectedAvionCheck.id },
             composant: { id },
             engineer: { id: currentUser.id },
-            description: `Composant défectueux détecté lors du checking par l'ingénieur ${currentUser.prenom} ${currentUser.nom}`,
+            description: `Composant défectueux de l'avion ${selectedAvionCheck.modele} détecté lors du checking par l'ingénieur ${currentUser.prenom} ${currentUser.nom}`,
             dateRapport: new Date().toISOString().slice(0, 10)
           });
         }));

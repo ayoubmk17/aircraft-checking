@@ -14,15 +14,12 @@ public class Rapport {
     private Long id;
 
     @ManyToOne
-    @JsonIgnore
     private Composant composant;
 
     @ManyToOne
-    @JsonIgnore
     private Utilisateur engineer;
 
     @ManyToOne
-    @JsonIgnore
     private Utilisateur mecanicien;
 
     private String description;
