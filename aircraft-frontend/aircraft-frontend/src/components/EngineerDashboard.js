@@ -157,7 +157,7 @@ export default function EngineerDashboard({ currentUser, onLogout }) {
         setFeedback({ type: 'success', message: "Composants NOK signalés et rapports générés." });
       } else {
         // Tous OK : repasser l'avion à ACTIF
-        await updateAvion(selectedAvionCheck.id, { ...selectedAvionCheck, statut: 'ACTIF' });
+        await updateAvion(selectedAvionCheck.id, { statut: 'ACTIF' });
         setFeedback({ type: 'success', message: "Tous les composants sont OK. L'avion est prêt." });
       }
       fetchAvions();
